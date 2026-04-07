@@ -51,7 +51,7 @@
                 </div>
                 <h2 class="text-3xl font-bold mb-4 z-10">אני תלמיד</h2>
                 <p class="text-slate-400 mb-8 z-10 text-sm">העלו את קובץ ה-JSON כדי להתחיל לשחק.</p>
-                <label class="bg-indigo-600 hover:bg-indigo-500 border border-indigo-400 text-white px-8 py-4 rounded-xl font-bold text-xl cursor-pointer transition transform hover:scale-105 w-full block z-10 shadow-lg">
+                <label class="bg-indigo-600 hover:bg-indigo-500 border border-indigo-400 text-white px-8 py-4 rounded-xl font-bold text-xl cursor-pointer transition transform hover:scale-105 w-full block z-10 shadow-lg text-center">
                     טען משחק והתחל
                     <input type="file" class="hidden" accept=".json" onchange="handleLoadGame(event, 'STUDENT')">
                 </label>
@@ -63,7 +63,7 @@
                     <i class="fas fa-fingerprint text-cyan-300 text-3xl"></i>
                 </div>
                 <h2 class="text-3xl font-bold mb-4 z-10">אני מורה</h2>
-                <div class="flex flex-col gap-3 w-full z-10">
+                <div class="flex flex-col gap-3 w-full z-10 text-center">
                     <label class="bg-cyan-700 hover:bg-cyan-600 border border-cyan-500 text-white px-8 py-4 rounded-xl font-bold text-xl cursor-pointer transition transform hover:scale-105 block shadow-lg text-center">
                         יצירת חדר חדש
                         <input type="file" class="hidden" accept="image/*" onchange="handleNewGame(event)">
@@ -84,7 +84,7 @@
                 <i class="fas fa-database text-cyan-600"></i> עורך חדר בריחה
             </h1>
             <div class="flex gap-3 items-center">
-                <button onclick="previewGame()" class="bg-indigo-600 hover:bg-indigo-500 border border-indigo-400 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition text-sm">
+                <button onclick="previewGame()" class="bg-indigo-600 hover:bg-indigo-500 border border-indigo-400 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition text-sm shadow-[0_0_10px_rgba(99,102,241,0.3)]">
                     <i class="fas fa-play"></i> תצוגת תלמיד
                 </button>
                 <div class="w-px h-6 bg-slate-700"></div>
@@ -98,7 +98,7 @@
             <aside class="w-72 bg-slate-900 border-l border-slate-800 p-4 flex flex-col gap-4 z-20 shrink-0 h-full overflow-hidden">
                 <div class="flex justify-between items-center mb-2 shrink-0">
                     <h2 class="font-bold text-lg text-slate-300 uppercase tracking-widest text-sm">שלבי החדר</h2>
-                    <label class="bg-cyan-700 hover:bg-cyan-600 border border-cyan-500 w-8 h-8 rounded-full cursor-pointer flex items-center justify-center text-white">
+                    <label class="bg-cyan-700 hover:bg-cyan-600 border border-cyan-500 w-8 h-8 rounded-full cursor-pointer flex items-center justify-center text-white transition hover:scale-110">
                         <i class="fas fa-plus"></i>
                         <input type="file" class="hidden" accept="image/*" onchange="addLevelFromFile(event)">
                     </label>
@@ -111,10 +111,11 @@
                     <div id="teacher-image-container" class="flex-1 relative shadow-[0_0_30px_rgba(0,0,0,0.8)] border border-slate-700 rounded-xl overflow-hidden bg-black w-full flex items-center justify-center min-h-[40vh]">
                         <img id="teacher-image" src="" class="max-w-full max-h-full object-contain pointer-events-none select-none opacity-90">
                         <div id="teacher-hotspot" class="absolute hotspot-edit"></div>
-                        <div class="absolute top-4 right-4 bg-black/80 px-4 py-2 rounded-lg text-xs font-bold border border-cyan-500/50 text-cyan-300 theme-font">סמנו את המנעול</div>
+                        <div id="teacher-hotspot-hint" class="absolute top-4 right-4 bg-black/80 px-4 py-2 rounded-lg text-xs font-bold border border-cyan-500/50 text-cyan-300 theme-font">סמנו את המנעול</div>
                     </div>
 
-                    <div class="w-full bg-slate-900/80 p-6 rounded-xl border border-slate-700 grid grid-cols-2 gap-6 shadow-xl shrink-0 backdrop-blur-sm">
+                    <!-- פאנל עריכה - מוצג רק מחידה 2 ומעלה -->
+                    <div id="teacher-edit-panel" class="w-full bg-slate-900/80 p-6 rounded-xl border border-slate-700 grid grid-cols-2 gap-6 shadow-xl shrink-0 backdrop-blur-sm">
                         <div class="flex flex-col gap-2">
                             <label class="text-xs font-bold text-cyan-500 uppercase tracking-widest">השאלה לתלמיד:</label>
                             <textarea id="teacher-input-question" rows="2" class="bg-[#0b1120] border border-slate-700 rounded-lg px-4 py-3 text-slate-200 focus:outline-none resize-none"></textarea>
@@ -123,6 +124,11 @@
                             <label class="text-xs font-bold text-cyan-500 uppercase tracking-widest">התשובה הנכונה:</label>
                             <input id="teacher-input-answer" type="text" class="bg-[#0b1120] border border-slate-700 rounded-lg px-4 py-3 text-cyan-300 theme-font text-lg">
                         </div>
+                    </div>
+                    
+                    <!-- הודעה לתמונת פתיחה -->
+                    <div id="teacher-intro-msg" class="hidden w-full bg-indigo-900/40 p-6 rounded-xl border border-indigo-700 text-center shadow-xl shrink-0 backdrop-blur-sm">
+                        <p class="text-indigo-200 font-bold tracking-widest"><i class="fas fa-info-circle ml-2"></i> זוהי תמונת הפתיחה. לחיצה עליה במשחק תוביל לחידה הבאה ללא צורך בקוד.</p>
                     </div>
                 </div>
             </main>
@@ -147,12 +153,12 @@
             <!-- התמונה בלבד במרכז המסך -->
             <div id="student-image-wrapper" 
                  class="relative shadow-[0_0_50px_rgba(0,0,0,0.9)] border-2 border-slate-700 rounded-2xl overflow-hidden bg-black flex items-center justify-center max-w-full max-h-[85vh] cursor-pointer group"
-                 onclick="openModal()">
+                 onclick="handleImageClick()">
                 <img id="student-image" src="" class="max-w-full max-h-[80vh] object-contain opacity-95 transition-all group-hover:opacity-100">
                 <div id="student-hotspot" class="absolute hotspot-play"></div>
             </div>
             
-            <div class="mt-4 text-slate-500 theme-font text-xs tracking-widest uppercase">
+            <div id="student-hint-text" class="mt-4 text-slate-500 theme-font text-xs tracking-widest uppercase">
                 /// לחצו על התמונה או על המנעול כדי להזין צופן ///
             </div>
         </main>
@@ -195,7 +201,7 @@
         <h1 class="theme-font text-7xl font-bold text-cyan-400 mb-6 uppercase tracking-widest">יצאתם לחופשי! 🏆</h1>
         <p class="text-xl text-slate-400 mb-12 max-w-lg">כל הכבוד, פיצחתם את כל החידות בהצלחה!</p>
         <div class="flex gap-4">
-            <button onclick="location.reload()" class="bg-transparent border-2 border-cyan-600 text-cyan-400 px-10 py-3 rounded-full font-bold text-lg hover:bg-cyan-900/30">חזרה להתחלה</button>
+            <button onclick="location.reload()" class="bg-transparent border-2 border-cyan-600 text-cyan-400 hover:bg-cyan-900/30 px-10 py-3 rounded-full font-bold text-lg hover:scale-105 transition-all">חזרה להתחלה</button>
             <button id="btn-victory-back-edit" onclick="returnToEditor()" class="hidden bg-indigo-600 text-white px-10 py-3 rounded-full font-bold text-lg">חזרה לעריכה</button>
         </div>
     </div>
@@ -221,14 +227,18 @@
             imgContainer: document.getElementById('teacher-image-container'),
             img: document.getElementById('teacher-image'),
             hotspot: document.getElementById('teacher-hotspot'),
+            hotspotHint: document.getElementById('teacher-hotspot-hint'),
             inputQ: document.getElementById('teacher-input-question'),
-            inputA: document.getElementById('teacher-input-answer')
+            inputA: document.getElementById('teacher-input-answer'),
+            editPanel: document.getElementById('teacher-edit-panel'),
+            introMsg: document.getElementById('teacher-intro-msg')
         };
 
         const studentDOM = {
             progress: document.getElementById('student-progress-text'),
             img: document.getElementById('student-image'),
             hotspot: document.getElementById('student-hotspot'),
+            hint: document.getElementById('student-hint-text'),
             modalInput: document.getElementById('modal-input'),
             modalQ: document.getElementById('modal-question'),
             modalFeedback: document.getElementById('modal-feedback')
@@ -237,6 +247,19 @@
         function showScreen(screenName) {
             Object.values(screens).forEach(s => s.classList.add('hidden'));
             screens[screenName].classList.remove('hidden');
+        }
+
+        function handleImageClick() {
+            if (currentLevelIndex === 0) {
+                // תמונת פתיחה - עוברים הלאה מיד
+                if (currentLevelIndex < levels.length - 1) {
+                    currentLevelIndex++;
+                    renderStudentUI();
+                }
+            } else {
+                // חידה רגילה - פותחים את המודאל
+                openModal();
+            }
         }
 
         function openModal() {
@@ -357,27 +380,45 @@
             }
             teacherDOM.mainContent.style.visibility = 'visible';
             teacherDOM.sidebar.innerHTML = '';
+            
             levels.forEach((lvl, idx) => {
                 const div = document.createElement('div');
+                const isIntro = (idx === 0);
                 div.className = `group relative p-2 rounded-xl border border-slate-700 cursor-pointer transition-all ${currentLevelIndex === idx ? 'active-level' : 'bg-slate-800'}`;
                 div.onclick = () => { currentLevelIndex = idx; renderTeacherUI(); };
                 div.innerHTML = `<img src="${lvl.image}" class="w-full h-20 object-cover rounded-md mb-2 opacity-80 shadow-inner">
-                    <div class="text-sm font-bold text-cyan-200">חידה ${idx + 1}</div>
+                    <div class="text-xs font-bold ${isIntro ? 'text-indigo-400' : 'text-cyan-200'}">
+                        ${isIntro ? 'תמונת פתיחה' : 'חידה ' + idx}
+                    </div>
                     <button onclick="event.stopPropagation(); removeLevel(${idx})" class="absolute top-3 left-3 bg-red-600 p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition hover:bg-red-500"><i class="fas fa-trash text-xs"></i></button>`;
                 teacherDOM.sidebar.appendChild(div);
             });
+
             const current = levels[currentLevelIndex];
             teacherDOM.img.src = current.image;
-            updateHotspotVisual(teacherDOM.hotspot, current.hotspot);
-            teacherDOM.inputQ.value = current.question;
-            teacherDOM.inputA.value = current.answer;
+            
+            // לוגיקה לתמונת פתיחה (אינדקס 0)
+            if (currentLevelIndex === 0) {
+                teacherDOM.editPanel.classList.add('hidden');
+                teacherDOM.introMsg.classList.remove('hidden');
+                teacherDOM.hotspot.classList.add('hidden');
+                teacherDOM.hotspotHint.classList.add('hidden');
+            } else {
+                teacherDOM.editPanel.classList.remove('hidden');
+                teacherDOM.introMsg.classList.add('hidden');
+                teacherDOM.hotspot.classList.remove('hidden');
+                teacherDOM.hotspotHint.classList.remove('hidden');
+                updateHotspotVisual(teacherDOM.hotspot, current.hotspot);
+                teacherDOM.inputQ.value = current.question;
+                teacherDOM.inputA.value = current.answer;
+            }
         }
 
         teacherDOM.inputQ.oninput = (e) => { levels[currentLevelIndex].question = e.target.value; };
         teacherDOM.inputA.oninput = (e) => { levels[currentLevelIndex].answer = e.target.value; };
 
         teacherDOM.imgContainer.onmousedown = (e) => {
-            if(userRole !== 'TEACHER' || levels.length === 0) return;
+            if(userRole !== 'TEACHER' || levels.length === 0 || currentLevelIndex === 0) return;
             const rect = teacherDOM.imgContainer.getBoundingClientRect();
             dragStart.x = ((e.clientX - rect.left) / rect.width) * 100;
             dragStart.y = ((e.clientY - rect.top) / rect.height) * 100;
@@ -386,7 +427,7 @@
         };
 
         teacherDOM.imgContainer.onmousemove = (e) => {
-            if(!isDragging || userRole !== 'TEACHER') return;
+            if(!isDragging || userRole !== 'TEACHER' || currentLevelIndex === 0) return;
             const rect = teacherDOM.imgContainer.getBoundingClientRect();
             const curX = ((e.clientX - rect.left) / rect.width) * 100;
             const curY = ((e.clientY - rect.top) / rect.height) * 100;
@@ -406,9 +447,19 @@
 
         function renderStudentUI() {
             const current = levels[currentLevelIndex];
-            studentDOM.progress.innerText = `חידה ${currentLevelIndex + 1} מתוך ${levels.length}`;
+            
+            if (currentLevelIndex === 0) {
+                studentDOM.progress.innerText = `הקדמה`;
+                studentDOM.hint.innerText = "/// לחצו על התמונה כדי להתחיל במשימה ///";
+                studentDOM.hotspot.classList.add('hidden');
+            } else {
+                studentDOM.progress.innerText = `חידה ${currentLevelIndex} מתוך ${levels.length - 1}`;
+                studentDOM.hint.innerText = "/// לחצו על התמונה או על המנעול כדי להזין צופן ///";
+                studentDOM.hotspot.classList.remove('hidden');
+                updateHotspotVisual(studentDOM.hotspot, current.hotspot);
+            }
+            
             studentDOM.img.src = current.image;
-            updateHotspotVisual(studentDOM.hotspot, current.hotspot);
         }
 
         function checkAnswer() {
