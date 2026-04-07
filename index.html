@@ -54,7 +54,7 @@
                     <i class="fas fa-search text-indigo-300 text-3xl"></i>
                 </div>
                 <h2 class="text-3xl font-bold mb-4 z-10 text-indigo-100">אני תלמיד</h2>
-                <p class="text-slate-400 mb-8 z-10 text-sm">העלו את קובץ ה-JSON שקיבלתם מהמורה.</p>
+                <p class="text-slate-400 mb-8 z-10 text-sm text-center">העלו את קובץ ה-JSON שקיבלתם מהמורה.</p>
                 <label class="bg-indigo-600 hover:bg-indigo-500 border border-indigo-400 text-white px-8 py-4 rounded-xl font-bold text-xl cursor-pointer transition transform hover:scale-105 w-full block z-10 shadow-lg text-center">
                     טען משחק והתחל
                     <input type="file" class="hidden" accept=".json" onchange="handleLoadGame(event, 'STUDENT')">
@@ -66,7 +66,7 @@
                 <div class="w-20 h-20 bg-cyan-900 border border-cyan-500 rounded-full flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(6,182,212,0.5)] z-10">
                     <i class="fas fa-fingerprint text-cyan-300 text-3xl"></i>
                 </div>
-                <h2 class="text-3xl font-bold mb-4 z-10">אני מורה</h2>
+                <h2 class="text-3xl font-bold mb-4 z-10 text-cyan-100">אני מורה</h2>
                 <div class="flex flex-col gap-3 w-full z-10">
                     <label class="bg-cyan-700 hover:bg-cyan-600 border border-cyan-500 text-white px-8 py-4 rounded-xl font-bold text-xl cursor-pointer transition transform hover:scale-105 block shadow-lg text-center">
                         יצירת חדר חדש
@@ -88,12 +88,15 @@
                 <i class="fas fa-database text-cyan-600"></i> עורך חדר בריחה
             </h1>
             <div class="flex gap-3 items-center">
-                <button onclick="previewGame()" class="bg-indigo-600 hover:bg-indigo-500 border border-indigo-400 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition text-sm shadow-[0_0_10px_rgba(99,102,241,0.3)]">
-                    <i class="fas fa-play"></i> תצוגת תלמיד
+                <button onclick="location.reload()" class="bg-slate-800 hover:bg-blue-900/40 border border-slate-700 text-slate-300 px-4 py-2 rounded-lg flex items-center gap-2 transition text-sm">
+                    <i class="fas fa-plus-circle"></i> יצירת חדר בריחה חדש
                 </button>
                 <div class="w-px h-6 bg-slate-700"></div>
-                <button onclick="saveProjectFile()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-cyan-300 px-4 py-2 rounded-lg flex items-center gap-2 transition text-sm">
-                    <i class="fas fa-download"></i> שמירת פרויקט
+                <button onclick="previewGame()" class="bg-indigo-600 hover:bg-indigo-500 border border-indigo-400 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition text-sm shadow-md">
+                    <i class="fas fa-play"></i> תצוגת תלמיד
+                </button>
+                <button onclick="saveProjectFile()" class="bg-cyan-700 hover:bg-cyan-600 border border-cyan-500 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition text-sm font-bold shadow-lg">
+                    <i class="fas fa-save"></i> שמירה
                 </button>
             </div>
         </header>
@@ -101,7 +104,7 @@
         <div class="flex-1 flex overflow-hidden min-h-0">
             <aside class="w-72 bg-slate-900 border-l border-slate-800 p-4 flex flex-col gap-4 z-20 shrink-0 h-full overflow-hidden">
                 <div class="flex justify-between items-center mb-2 shrink-0">
-                    <h2 class="font-bold text-lg text-slate-300 uppercase tracking-widest text-sm">שלבי החדר</h2>
+                    <h2 class="font-bold text-lg text-slate-300 uppercase tracking-widest text-sm text-center">שלבי החדר</h2>
                     <label class="bg-cyan-700 hover:bg-cyan-600 border border-cyan-500 w-8 h-8 rounded-full cursor-pointer flex items-center justify-center text-white transition hover:scale-110" title="הוספת תמונה חדשה אחרי התמונה המסומנת">
                         <i class="fas fa-plus"></i>
                         <input type="file" class="hidden" accept="image/*" onchange="addLevelFromFile(event)">
@@ -113,7 +116,6 @@
             <main class="flex-1 overflow-y-auto p-6 bg-[#0b1120] shadow-inner flex flex-col">
                 <div id="teacher-main-content" class="max-w-5xl mx-auto flex-1 flex flex-col items-center gap-6 w-full py-4">
                     
-                    <!-- הגדרת סוג תמונה -->
                     <div id="teacher-type-selector" class="w-full flex justify-center gap-4 bg-slate-900/50 p-3 rounded-2xl border border-slate-800 shrink-0">
                         <span class="text-xs font-bold text-slate-500 uppercase self-center ml-2">סוג השלב:</span>
                         <div onclick="setLevelType('intro')" id="type-intro" class="type-pill px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
@@ -127,19 +129,17 @@
                         </div>
                     </div>
 
-                    <div id="teacher-image-container" class="flex-1 relative shadow-[0_0_30px_rgba(0,0,0,0.8)] border border-slate-700 rounded-xl bg-black w-full flex items-center justify-center min-h-[40vh]">
+                    <div id="teacher-image-container" class="flex-1 relative shadow-[0_0_30px_rgba(0,0,0,0.8)] border border-slate-700 rounded-xl bg-black w-full flex items-center justify-center min-h-[45vh]">
                         <img id="teacher-image" src="" class="max-w-full max-h-full object-contain pointer-events-none select-none opacity-90">
                         <div id="teacher-hotspot" class="absolute hotspot-edit"></div>
                         <div id="teacher-hotspot-hint" class="absolute top-4 right-4 bg-black/80 px-4 py-2 rounded-lg text-xs font-bold border border-cyan-500/50 text-cyan-300 theme-font text-center">סמנו את אזור הלחיצה</div>
                         
-                        <!-- כפתור החלפת תמונה -->
                         <label class="absolute top-4 left-4 bg-indigo-600/80 hover:bg-indigo-600 px-4 py-2 rounded-lg text-xs font-bold border border-indigo-400 text-white shadow-lg cursor-pointer transition flex items-center gap-2">
                             <i class="fas fa-sync-alt"></i> החלפת תמונה
                             <input type="file" class="hidden" accept="image/*" onchange="replaceImageFromFile(event)">
                         </label>
                     </div>
 
-                    <!-- פאנל עריכה -->
                     <div id="teacher-edit-panel" class="w-full bg-slate-900/80 p-6 rounded-xl border border-slate-700 grid grid-cols-2 gap-6 shadow-xl shrink-0 backdrop-blur-sm">
                         <div class="flex flex-col gap-2">
                             <label class="text-xs font-bold text-cyan-500 uppercase tracking-widest flex items-center gap-2">
@@ -169,11 +169,11 @@
             <h1 class="font-bold text-cyan-400 theme-font text-3xl tracking-widest flex items-center gap-3">
                 <i class="fas fa-lock-open text-slate-500"></i> חדר בריחה
             </h1>
-            <div class="flex items-center gap-4">
-                <button id="btn-back-to-edit" onclick="returnToEditor()" class="hidden bg-slate-800 hover:bg-slate-700 border border-slate-500 text-slate-300 px-4 py-2 rounded-lg flex items-center gap-2 transition text-sm">
+            <div class="flex items-center gap-4 text-center">
+                <button id="btn-back-to-edit" onclick="returnToEditor()" class="hidden bg-slate-800 hover:bg-slate-700 border border-slate-600 text-cyan-300 px-4 py-2 rounded-lg flex items-center gap-2 transition text-sm">
                     <i class="fas fa-arrow-right"></i> חזרה לעריכה
                 </button>
-                <div id="student-progress-text" class="text-cyan-100 font-bold bg-[#0b1120] border border-cyan-800 px-6 py-2 rounded-full text-sm tracking-wide shadow-[0_0_10px_rgba(6,182,212,0.1)]"></div>
+                <div id="student-progress-text" class="text-cyan-100 font-bold bg-[#0b1120] border border-cyan-800 px-6 py-2 rounded-full text-sm tracking-wide shadow-[0_0_10px_rgba(6,182,212,0.1)] text-center"></div>
             </div>
         </header>
 
@@ -181,7 +181,7 @@
             <div id="student-image-wrapper" 
                  class="relative shadow-[0_0_50px_rgba(0,0,0,0.9)] border-2 border-slate-700 rounded-2xl bg-black flex items-center justify-center max-w-full max-h-[85vh] cursor-pointer group"
                  onclick="handleImageClick()">
-                <img id="student-image" src="" class="max-w-full max-h-full object-contain opacity-95 transition-all group-hover:opacity-100">
+                <img id="student-image" src="" class="max-w-full max-h-[80vh] object-contain opacity-95 transition-all group-hover:opacity-100">
                 <div id="student-hotspot" class="absolute hotspot-play"></div>
             </div>
             
@@ -190,7 +190,7 @@
     </div>
 
     <!-- מודאל שאלה -->
-    <div id="modal-lock" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md">
+    <div id="modal-lock" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md text-center">
         <div class="bg-slate-900 p-8 md:p-10 rounded-2xl border border-cyan-800 max-w-md w-full text-center relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1 bg-cyan-500 shadow-[0_0_15px_rgba(6,182,212,1)]"></div>
             <h2 class="theme-font text-3xl font-bold text-cyan-400 mb-6 tracking-widest uppercase text-center">הזנת קוד גישה</h2>
@@ -208,17 +208,16 @@
 
     <!-- מסך ניצחון -->
     <div id="screen-victory" class="hidden fixed inset-0 bg-[#0b1120] z-[200] flex flex-col items-center justify-center text-center p-8 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-900 to-[#0b1120]">
-        <div class="relative mb-10"><i class="fas fa-check text-9xl text-cyan-400 drop-shadow-[0_0_25px_rgba(6,182,212,0.8)]"></i></div>
-        <h1 class="theme-font text-7xl font-bold text-cyan-400 mb-6 uppercase tracking-widest">יצאתם לחופשי! 🏆</h1>
-        <p class="text-xl text-slate-400 mb-12 max-w-lg text-center">כל הכבוד, פיצחתם את כל החידות בהצלחה!</p>
-        <div class="flex gap-4">
-            <button onclick="location.reload()" class="bg-transparent border-2 border-cyan-600 text-cyan-400 hover:bg-cyan-900/30 px-10 py-3 rounded-full font-bold text-lg hover:scale-105 transition-all text-center">חזרה להתחלה</button>
-            <button id="btn-victory-back-edit" onclick="returnToEditor()" class="hidden bg-indigo-600 text-white px-10 py-3 rounded-full font-bold text-lg text-center">חזרה לעריכה</button>
+        <div class="relative mb-10 text-center"><i class="fas fa-check text-9xl text-cyan-400 drop-shadow-[0_0_25px_rgba(6,182,212,0.8)]"></i></div>
+        <h1 class="theme-font text-7xl font-bold text-cyan-400 mb-6 uppercase tracking-widest text-center">יצאתם לחופשי! 🏆</h1>
+        <p class="text-xl text-slate-400 mb-12 max-w-lg text-center mx-auto">כל הכבוד, פיצחתם את כל החידות בהצלחה!</p>
+        <div class="flex gap-4 justify-center">
+            <button onclick="location.reload()" class="bg-transparent border-2 border-cyan-600 text-cyan-400 px-10 py-3 rounded-full font-bold text-lg hover:bg-cyan-900/30 text-center transition">חזרה להתחלה</button>
+            <button id="btn-victory-back-edit" onclick="returnToEditor()" class="hidden bg-indigo-600 text-white px-10 py-3 rounded-full font-bold text-lg text-center transition">חזרה לעריכה</button>
         </div>
     </div>
 
-    <!-- חתימה אישית בתחתית העמוד -->
-    <footer class="p-4 bg-slate-950/80 border-t border-slate-900 flex flex-col items-center shrink-0 z-50">
+    <footer class="p-4 bg-slate-950/80 border-t border-slate-900 flex flex-col items-center shrink-0 z-50 text-center">
         <img src="pic.png" alt="אריאל קלפנר" class="w-10 h-10 rounded-full mb-2 border border-cyan-500/40 shadow-lg object-cover" onerror="this.style.display='none'">
         <p class="text-[10px] md:text-xs text-slate-500 theme-font tracking-wide text-center">
             אריאל קלפנר, טכנופדגוגיה, בינה מלאכותית והערכה בחינוך - 050-9540538
@@ -366,6 +365,7 @@
             const imgData = await processImage(file);
             levels[currentLevelIndex].image = imgData;
             renderTeacherUI();
+            event.target.value = '';
         }
 
         async function addLevelFromFile(event) {
@@ -383,6 +383,7 @@
             if (levels.length === 0) { levels.push(newLevel); currentLevelIndex = 0; }
             else { levels.splice(currentLevelIndex + 1, 0, newLevel); currentLevelIndex++; }
             renderTeacherUI();
+            if(event.target) event.target.value = '';
         }
 
         function removeLevel(index) {
@@ -396,7 +397,7 @@
             const blob = new Blob([JSON.stringify(levels)], { type: 'application/json' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = 'escape-room.json';
+            link.download = 'escape-room-project.json';
             link.click();
         }
 
@@ -415,7 +416,7 @@
                     div.onclick = () => { currentLevelIndex = idx; renderTeacherUI(); };
                     let typeIcon = lvl.type === 'intro' ? 'fa-door-open text-indigo-400' : (lvl.type === 'end' ? 'fa-flag-checkered text-green-400' : 'fa-puzzle-piece text-cyan-200');
                     div.innerHTML = `<img src="${lvl.image}" class="w-full h-20 object-cover rounded-md mb-2 opacity-80 shadow-inner">
-                        <div class="text-[10px] font-bold flex items-center gap-1 uppercase tracking-tighter">
+                        <div class="text-[10px] font-bold flex items-center gap-1 uppercase tracking-tighter text-center">
                             <i class="fas ${typeIcon}"></i> <span>שלב ${idx + 1}</span>
                         </div>
                         <button onclick="event.stopPropagation(); removeLevel(${idx})" class="absolute top-3 left-3 bg-red-600 p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition hover:bg-red-500"><i class="fas fa-trash text-xs"></i></button>`;
@@ -427,7 +428,7 @@
             if (!current) return;
             if (teacherDOM.img) teacherDOM.img.src = current.image;
             
-            document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.type-pill').forEach(p => { if (p) p.classList.remove('active'); });
             const activePill = document.getElementById(`type-${current.type || 'puzzle'}`);
             if (activePill) activePill.classList.add('active');
 
@@ -452,8 +453,8 @@
                 }
                 if (teacherDOM.navText) {
                     teacherDOM.navText.innerHTML = current.type === 'intro' 
-                        ? '<i class="fas fa-info-circle ml-2 text-indigo-400"></i> תמונת פתיחה - לחיצה עליה במשחק תעבור לשלב הבא ללא קוד.'
-                        : '<i class="fas fa-flag-checkered ml-2 text-green-400"></i> תמונת סיום - לחיצה עליה תסיים את חדר הבריחה ותציג מסך ניצחון.';
+                        ? '<i class="fas fa-info-circle ml-2 text-indigo-400"></i> תמונת פתיחה - סמנו את האזור ללחיצה כדי לעבור לשלב הבא.'
+                        : '<i class="fas fa-flag-checkered ml-2 text-green-400"></i> תמונת סיום - סמנו את האזור ללחיצה לסיום חדר הבריחה.';
                 }
             }
         }
