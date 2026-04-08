@@ -118,7 +118,6 @@
             <main class="flex-1 overflow-y-auto p-6 bg-[#0b1120] shadow-inner flex flex-col">
                 <div id="teacher-main-content" class="max-w-5xl mx-auto flex-1 flex flex-col items-center gap-6 w-full py-4">
                     
-                    <!-- הגדרת סוג שלב -->
                     <div id="teacher-type-selector" class="w-full flex justify-center gap-4 bg-slate-900/50 p-3 rounded-2xl border border-slate-800 shrink-0">
                         <span class="text-xs font-bold text-slate-500 uppercase self-center ml-2">סוג השלב:</span>
                         <div onclick="setLevelType('intro')" id="type-intro" class="type-pill px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
@@ -132,8 +131,9 @@
                         </div>
                     </div>
 
-                    <div id="teacher-image-container" class="flex-1 relative shadow-[0_0_30px_rgba(0,0,0,0.8)] border border-slate-700 rounded-xl bg-black w-full flex items-center justify-center min-h-[45vh]">
-                        <img id="teacher-image" src="" class="max-w-full max-h-full object-contain pointer-events-none select-none opacity-90">
+                    <!-- תיקון מסגרת התמונה: ביטול overflow-hidden והבטחה שרואים את כל התמונה -->
+                    <div id="teacher-image-container" class="relative shadow-[0_0_30px_rgba(0,0,0,0.8)] border border-slate-700 rounded-xl bg-black w-full flex items-center justify-center min-h-[45vh]">
+                        <img id="teacher-image" src="" class="max-w-full max-h-[70vh] object-contain pointer-events-none select-none opacity-90">
                         <div id="teacher-hotspot" class="absolute hotspot-edit"></div>
                         <div id="teacher-hotspot-hint" class="absolute top-4 right-4 bg-black/80 px-4 py-2 rounded-lg text-xs font-bold border border-cyan-500/50 text-cyan-300 theme-font text-center">סמנו את אזור הלחיצה</div>
                         
@@ -181,10 +181,11 @@
         </header>
 
         <main class="flex-1 overflow-hidden p-4 md:p-8 flex flex-col items-center justify-center relative z-10">
+            <!-- תיקון כאן: הגדרת max-h-[85vh] וביטול overflow-hidden כדי לוודא שרואים את כל התמונה -->
             <div id="student-image-wrapper" 
                  class="relative shadow-[0_0_50px_rgba(0,0,0,0.9)] border-2 border-slate-700 rounded-2xl bg-black flex items-center justify-center max-w-full max-h-[85vh] cursor-pointer group"
                  onclick="handleImageClick()">
-                <img id="student-image" src="" class="max-w-full max-h-full object-contain opacity-95 transition-all group-hover:opacity-100">
+                <img id="student-image" src="" class="max-w-full max-h-[80vh] object-contain opacity-95 transition-all group-hover:opacity-100 block">
                 <div id="student-hotspot" class="absolute hotspot-play" onclick="event.stopPropagation(); handleImageClick()"></div>
             </div>
             
@@ -220,7 +221,6 @@
         </div>
     </div>
 
-    <!-- חתימה אישית -->
     <footer class="p-4 bg-slate-950/80 border-t border-slate-900 flex flex-col items-center shrink-0 z-50 text-center">
         <img src="pic.png" alt="אריאל קלפנר" class="w-10 h-10 rounded-full mb-2 border border-cyan-500/40 shadow-lg object-cover" onerror="this.style.display='none'">
         <p class="text-[10px] md:text-xs text-slate-500 theme-font tracking-wide text-center">
@@ -281,7 +281,6 @@
             const level = levels[currentLevelIndex];
             if (!level) return;
             
-            // לוגיקת מעבר לפי סוג שלב
             if (level.type === 'intro') {
                 if (currentLevelIndex < levels.length - 1) {
                     currentLevelIndex++;
@@ -445,7 +444,6 @@
 
             const hintEl = document.getElementById('teacher-hotspot-hint');
 
-            // תמיד מציגים את האזור החם בעורך כדי שיוכלו לצייר אותו
             if (teacherDOM.hotspot) { 
                 teacherDOM.hotspot.classList.remove('hidden'); 
                 if (hintEl) hintEl.classList.remove('hidden');
@@ -473,7 +471,6 @@
 
         if (teacherDOM.imgContainer) {
             teacherDOM.imgContainer.onmousedown = (e) => {
-                // כעת מאפשר ציור בכל סוג שלב
                 if(userRole !== 'TEACHER' || !levels[currentLevelIndex]) return;
                 const rect = teacherDOM.imgContainer.getBoundingClientRect();
                 dragStart.x = ((e.clientX - rect.left) / rect.width) * 100;
