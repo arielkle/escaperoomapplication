@@ -141,7 +141,7 @@
                     <div class="flex-1 flex items-center justify-center w-full bg-black/40 rounded-xl overflow-visible">
                         <div id="teacher-image-wrapper" class="image-display-area shadow-2xl">
                             <!-- הוספתי draggable="false" למניעת חטיפת התמונה בגרירה -->
-                            <img id="teacher-image" src="" draggable="false" class="opacity-95" onmousedown="startHotspotDraw(event)" onmousemove="updateHotspotDraw(event)">
+                            <img id="teacher-image" src="" draggable="false" class="opacity-95 pointer-events-none select-none">
                             <div id="teacher-hotspot" class="absolute hotspot-edit"></div>
                             
                             <div id="teacher-hotspot-hint" class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-black/80 px-4 py-1 rounded-lg text-xs font-bold border border-cyan-500/50 text-cyan-300 theme-font whitespace-nowrap">סמנו מלבן על התמונה</div>
@@ -165,7 +165,7 @@
                     </div>
                     
                     <div id="teacher-nav-msg" class="hidden w-full bg-indigo-900/40 p-3 rounded-xl border border-indigo-700 text-center shadow-xl shrink-0 backdrop-blur-sm">
-                        <p id="nav-msg-text" class="text-indigo-200 font-bold tracking-widest text-center text-xs"></p>
+                        <p id="nav-msg-text" class="text-indigo-200 font-bold tracking-widest text-center text-sm"></p>
                     </div>
                 </div>
             </main>
@@ -187,15 +187,14 @@
         </header>
 
         <main class="flex-1 overflow-hidden p-4 md:p-8 flex flex-col items-center justify-center relative z-10 text-center">
-            <div id="student-image-wrapper" 
-                 class="relative shadow-[0_0_50px_rgba(0,0,0,0.9)] border-2 border-slate-700 rounded-2xl bg-black flex items-center justify-center max-w-full max-h-[85vh] cursor-pointer group"
-                 onclick="handleImageClick()">
-                 <!-- הוספתי draggable="false" למניעת גרירת התמונה על ידי התלמיד -->
-                <img id="student-image" src="" draggable="false" class="max-w-full max-h-[80vh] object-contain opacity-95 transition-all group-hover:opacity-100 block">
-                <div id="student-hotspot" class="absolute hotspot-play" onclick="event.stopPropagation(); handleImageClick()"></div>
+            <!-- הסרתי את onclick מהמיכל כולו - הוספתי רק על המלבן -->
+            <div id="student-image-wrapper" class="image-display-area group">
+                <img id="student-image" src="" draggable="false" class="opacity-95 transition-all group-hover:opacity-100 shadow-[0_0_50px_rgba(0,0,0,0.9)] border-2 border-slate-700 rounded-xl select-none pointer-events-none">
+                <!-- רק המלבן השקוף לחיץ! -->
+                <div id="student-hotspot" class="absolute hotspot-play" onclick="handleImageClick()"></div>
             </div>
             
-            <div id="student-hint-text" class="mt-4 text-slate-500 theme-font text-xs tracking-widest uppercase text-center"></div>
+            <div id="student-hint-text" class="mt-8 text-slate-500 theme-font text-xs tracking-widest uppercase text-center"></div>
         </main>
     </div>
 
@@ -252,6 +251,7 @@
         const teacherDOM = {
             sidebar: document.getElementById('teacher-sidebar-levels'),
             mainContent: document.getElementById('teacher-main-content'),
+            imgWrapper: document.getElementById('teacher-image-wrapper'),
             img: document.getElementById('teacher-image'),
             hotspot: document.getElementById('teacher-hotspot'),
             inputQ: document.getElementById('teacher-input-question'),
@@ -285,11 +285,19 @@
         function handleImageClick() {
             const level = levels[currentLevelIndex];
             if (!level) return;
+            
             if (level.type === 'intro') {
-                if (currentLevelIndex < levels.length - 1) { currentLevelIndex++; renderStudentUI(); }
-                else showScreen('victory');
-            } else if (level.type === 'end') showScreen('victory');
-            else openModal();
+                if (currentLevelIndex < levels.length - 1) { 
+                    currentLevelIndex++; 
+                    renderStudentUI(); 
+                } else {
+                    showScreen('victory');
+                }
+            } else if (level.type === 'end') {
+                showScreen('victory');
+            } else {
+                openModal();
+            }
         }
 
         function openModal() {
@@ -298,7 +306,7 @@
             studentDOM.modalQ.innerText = current.question || "מהו הקוד?";
             studentDOM.modalInput.value = "";
             studentDOM.modalFeedback.classList.add('hidden');
-            screens.modal.classList.remove('hidden');
+            if (screens.modal) screens.modal.classList.remove('hidden');
             setTimeout(() => { if (studentDOM.modalInput) studentDOM.modalInput.focus(); }, 100);
         }
 
@@ -333,12 +341,23 @@
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
-                    levels = JSON.parse(e.target.result).map(l => ({...l, type: l.type || 'puzzle'}));
+                    // תיקון: הגנה כדי לוודא שקובץ JSON ישן עובד כראוי והסוג מוגדר
+                    let data = JSON.parse(e.target.result);
+                    let parsedLevels = Array.isArray(data) ? data : (data.levels || []);
+                    if (!parsedLevels || parsedLevels.length === 0) throw new Error("No levels");
+                    
+                    levels = parsedLevels.map(l => ({
+                        ...l, 
+                        type: l.type || 'puzzle',
+                        hotspot: l.hotspot || { x: 40, y: 40, width: 20, height: 20 }
+                    }));
+                    
                     currentLevelIndex = 0;
                     userRole = role;
                     if(role === 'TEACHER') { showScreen('teacher'); renderTeacherUI(); }
                     else { showScreen('student'); renderStudentUI(); }
-                } catch (err) { alert("קובץ לא תקין."); }
+                } catch (err) { alert("קובץ לא תקין או חסרים בו שלבים."); }
+                event.target.value = ''; // איפוס הקלט
             };
             reader.readAsText(file);
         }
@@ -397,29 +416,35 @@
             const imgData = await processImage(file);
             levels[currentLevelIndex].image = imgData;
             renderTeacherUI();
+            event.target.value = '';
         }
 
         async function addLevelFromFile(event) {
-            const file = event.target.files[0];
+            const file = event.target.files ? event.target.files[0] : event;
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const newLevel = {
-                    id: Date.now(),
-                    image: e.target.result,
-                    type: 'puzzle', 
-                    question: 'מהו הקוד למנעול?',
-                    answer: '',
-                    hotspot: { x: 40, y: 40, width: 20, height: 20 }
-                };
-                if (levels.length === 0) { levels.push(newLevel); currentLevelIndex = 0; }
-                else { levels.splice(currentLevelIndex + 1, 0, newLevel); currentLevelIndex++; }
-                renderTeacherUI();
+            const imgData = await processImage(file);
+            const newLevel = {
+                id: Date.now(),
+                image: imgData,
+                type: 'puzzle', 
+                question: 'מהו הקוד למנעול?',
+                answer: '',
+                hotspot: { x: 40, y: 40, width: 20, height: 20 }
             };
-            reader.readAsDataURL(file);
+            if (levels.length === 0) { levels.push(newLevel); currentLevelIndex = 0; }
+            else { levels.splice(currentLevelIndex + 1, 0, newLevel); currentLevelIndex++; }
+            renderTeacherUI();
+            if(event.target) event.target.value = '';
+        }
+
+        function removeLevel(index) {
+            levels.splice(index, 1);
+            if (currentLevelIndex >= levels.length && levels.length > 0) currentLevelIndex = levels.length - 1;
+            renderTeacherUI();
         }
 
         function saveProjectFile() {
+            if (levels.length === 0) return;
             const blob = new Blob([JSON.stringify(levels)], { type: 'application/json' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -429,54 +454,117 @@
 
         function renderTeacherUI() {
             if (levels.length === 0) return;
-            teacherDOM.sidebar.innerHTML = '';
-            levels.forEach((lvl, idx) => {
-                const div = document.createElement('div');
-                div.className = `p-2 rounded-xl border border-slate-700 cursor-pointer transition-all ${currentLevelIndex === idx ? 'active-level' : 'bg-slate-800'}`;
-                div.onclick = () => { currentLevelIndex = idx; renderTeacherUI(); };
-                div.innerHTML = `<img src="${lvl.image}" class="w-full h-16 object-cover rounded-md mb-1"><div class="text-[10px] font-bold text-center">שלב ${idx + 1}</div>`;
-                teacherDOM.sidebar.appendChild(div);
-            });
-            const cur = levels[currentLevelIndex];
-            teacherDOM.img.src = cur.image;
-            document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
-            document.getElementById(`type-${cur.type}`).classList.add('active');
-            updateHotspotVisual(teacherDOM.hotspot, cur.hotspot);
-            teacherDOM.editPanel.classList.toggle('hidden', cur.type !== 'puzzle');
-            teacherDOM.navMsg.classList.toggle('hidden', cur.type === 'puzzle');
-            teacherDOM.inputQ.value = cur.question || '';
-            teacherDOM.inputA.value = cur.answer || '';
+            
+            if (teacherDOM.sidebar) {
+                teacherDOM.sidebar.innerHTML = '';
+                levels.forEach((lvl, idx) => {
+                    const div = document.createElement('div');
+                    div.className = `p-2 rounded-xl border border-slate-700 cursor-pointer transition-all ${currentLevelIndex === idx ? 'active-level' : 'bg-slate-800'}`;
+                    div.onclick = () => { currentLevelIndex = idx; renderTeacherUI(); };
+                    
+                    let typeIcon = lvl.type === 'intro' ? 'fa-door-open text-indigo-400' : (lvl.type === 'end' ? 'fa-flag-checkered text-green-400' : 'fa-puzzle-piece text-cyan-200');
+                    
+                    div.innerHTML = `<img src="${lvl.image}" class="w-full h-16 object-cover rounded-md mb-1">
+                        <div class="text-[10px] font-bold flex items-center justify-center gap-1 uppercase tracking-tighter text-center">
+                            <i class="fas ${typeIcon}"></i> <span>שלב ${idx + 1}</span>
+                        </div>
+                        <button onclick="event.stopPropagation(); removeLevel(${idx})" class="absolute top-3 left-3 bg-red-600 p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition hover:bg-red-500"><i class="fas fa-trash text-xs"></i></button>`;
+                    teacherDOM.sidebar.appendChild(div);
+                });
+            }
+
+            const current = levels[currentLevelIndex];
+            if (!current) return;
+            
+            if (teacherDOM.img) teacherDOM.img.src = current.image;
+            
+            document.querySelectorAll('.type-pill').forEach(p => { if (p) p.classList.remove('active'); });
+            const activePill = document.getElementById(`type-${current.type}`);
+            if (activePill) activePill.classList.add('active');
+
+            if (teacherDOM.hotspot) { 
+                updateHotspotVisual(teacherDOM.hotspot, current.hotspot); 
+            }
+
+            if (current.type === 'puzzle') {
+                if (teacherDOM.editPanel) teacherDOM.editPanel.classList.remove('hidden');
+                if (teacherDOM.navMsg) teacherDOM.navMsg.classList.add('hidden');
+                if (teacherDOM.inputQ) teacherDOM.inputQ.value = current.question || "";
+                if (teacherDOM.inputA) teacherDOM.inputA.value = current.answer || "";
+            } else {
+                if (teacherDOM.editPanel) teacherDOM.editPanel.classList.add('hidden');
+                if (teacherDOM.navMsg) teacherDOM.navMsg.classList.remove('hidden');
+                if (teacherDOM.navText) {
+                    teacherDOM.navText.innerHTML = current.type === 'intro' 
+                        ? '<i class="fas fa-info-circle ml-2 text-indigo-400"></i> תמונת פתיחה - סמנו מלבן שקוף כדי לאפשר מעבר לשלב הבא.'
+                        : '<i class="fas fa-flag-checkered ml-2 text-green-400"></i> תמונת סיום - סמנו מלבן שקוף לסיום חדר הבריחה.';
+                }
+            }
         }
 
-        teacherDOM.inputQ.oninput = (e) => levels[currentLevelIndex].question = e.target.value;
-        teacherDOM.inputA.oninput = (e) => levels[currentLevelIndex].answer = e.target.value;
+        if (teacherDOM.inputQ) teacherDOM.inputQ.oninput = (e) => { if (levels[currentLevelIndex]) levels[currentLevelIndex].question = e.target.value; };
+        if (teacherDOM.inputA) teacherDOM.inputA.oninput = (e) => { if (levels[currentLevelIndex]) levels[currentLevelIndex].answer = e.target.value; };
 
         function updateHotspotVisual(el, data) {
+            if (!el || !data) return;
             el.style.top = data.y + "%"; el.style.left = data.x + "%";
             el.style.width = data.width + "%"; el.style.height = data.height + "%";
         }
 
         function renderStudentUI() {
-            const cur = levels[currentLevelIndex];
-            studentDOM.img.src = cur.image;
-            updateHotspotVisual(studentDOM.hotspot, cur.hotspot);
-            studentDOM.progress.innerText = cur.type === 'puzzle' ? `חידה ${levels.slice(0, currentLevelIndex + 1).filter(l => l.type === 'puzzle').length}` : 'הקדמה/סיום';
-            studentDOM.hint.innerText = cur.type === 'puzzle' ? 'מצאו את המנעול בתמונה ולחצו עליו' : 'לחצו על התמונה כדי להמשיך';
+            const current = levels[currentLevelIndex];
+            if (!current) return;
+            
+            const puzzleCount = levels.filter(l => l.type === 'puzzle').length;
+            const currentPuzzleIdx = levels.slice(0, currentLevelIndex + 1).filter(l => l.type === 'puzzle').length;
+
+            if (current.type === 'intro') {
+                studentDOM.progress.innerText = `הקדמה`;
+                studentDOM.hint.innerText = "/// לחצו על האזור שסומן בתמונה כדי להתחיל במשימה ///";
+            } else if (current.type === 'end') {
+                studentDOM.progress.innerText = `סיום המשימה`;
+                studentDOM.hint.innerText = "/// לחצו על האזור שסומן כדי לדווח על הצלחה ///";
+            } else {
+                studentDOM.progress.innerText = `חידה ${currentPuzzleIdx} מתוך ${puzzleCount}`;
+                studentDOM.hint.innerText = "/// מצאו את המנעול בתמונה ולחצו עליו ///";
+            }
+            
+            if (studentDOM.hotspot) { 
+                updateHotspotVisual(studentDOM.hotspot, current.hotspot); 
+            }
+            if (studentDOM.img) studentDOM.img.src = current.image;
         }
 
         function checkAnswer() {
+            const current = levels[currentLevelIndex];
+            if (!current) return;
             const input = studentDOM.modalInput.value.trim().toLowerCase();
-            const correct = levels[currentLevelIndex].answer.trim().toLowerCase();
+            const correct = (current.answer || "").trim().toLowerCase();
+            const fb = studentDOM.modalFeedback;
             if (input === correct || (correct.length > 2 && input.includes(correct))) {
-                studentDOM.modalFeedback.innerText = "הקוד אומת!";
-                studentDOM.modalFeedback.className = "text-green-400 mt-2";
-                studentDOM.modalFeedback.classList.remove('hidden');
-                setTimeout(() => { closeModal(); if (currentLevelIndex < levels.length - 1) { currentLevelIndex++; renderStudentUI(); } else showScreen('victory'); }, 1000);
+                fb.innerHTML = `<i class="fas fa-check-circle ml-2"></i> הקוד נכון! המנעול נפתח.`;
+                fb.className = "mt-3 block text-green-400 bg-green-900/20 py-2 rounded-lg text-center";
+                fb.classList.remove('hidden');
+                setTimeout(() => { 
+                    closeModal(); 
+                    if (currentLevelIndex < levels.length - 1) { 
+                        currentLevelIndex++; 
+                        renderStudentUI(); 
+                    } else { 
+                        showScreen('victory'); 
+                    } 
+                }, 1500);
             } else {
-                studentDOM.modalInput.classList.add('animate-shake');
-                setTimeout(() => studentDOM.modalInput.classList.remove('animate-shake'), 500);
+                fb.innerHTML = `<i class="fas fa-times-circle ml-2"></i> קוד שגוי. נסו שוב!`;
+                fb.className = "mt-3 block text-red-400 bg-red-900/20 py-2 rounded-lg text-center";
+                fb.classList.remove('hidden');
+                if (studentDOM.modalInput) { 
+                    studentDOM.modalInput.classList.add('animate-shake'); 
+                    setTimeout(() => studentDOM.modalInput.classList.remove('animate-shake'), 500); 
+                }
             }
         }
+        if (studentDOM.modalInput) studentDOM.modalInput.onkeypress = (e) => { if (e.key === 'Enter') checkAnswer(); };
     </script>
 </body>
 </html>
